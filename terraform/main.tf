@@ -8,7 +8,7 @@ terraform {
 }
 
 locals {
-  app_name = "terraform_practice"
+  app_name = "tfpractice"
 	host_domain = "youchannpracticeterraformapp.tk"
 	app_domain_name = "app.youchannpracticeterraformapp.tk"
   api_domain_name = "api.youchannpracticeterraformapp.tk"
