@@ -156,14 +156,14 @@ resource "aws_ecs_task_definition" "frontend" {
   memory                   = 512
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
-  container_definitions    = jsonencode([
+  container_definitions = jsonencode([
     {
-      name             = local.frontend_task_container_name
-      image            = "${data.aws_ecr_repository.frontend.repository_url}:${local.ecr_frontend_repository_newest_tags[0]}"
-      portMappings     = [{ containerPort : 3000 }]
+      name         = local.frontend_task_container_name
+      image        = "${data.aws_ecr_repository.frontend.repository_url}:${local.ecr_frontend_repository_newest_tags[0]}"
+      portMappings = [{ containerPort : 3000 }]
       logConfiguration = {
         logDriver = "awslogs"
-        options   = {
+        options = {
           awslogs-region : "ap-northeast-1"
           awslogs-group : aws_cloudwatch_log_group.frontend.name
           awslogs-stream-prefix : "ecs"
@@ -181,22 +181,22 @@ resource "aws_ecs_task_definition" "backend" {
   memory                   = 512
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
-  container_definitions    = jsonencode([
+  container_definitions = jsonencode([
     {
-      name             = local.backend_task_middleware_container_name
-      image            = "${data.aws_ecr_repository.backend_middleware.repository_url}:${local.ecr_backend_middleware_repository_newest_tags[0]}"
-      portMappings     = [{ containerPort : 80 }]
+      name         = local.backend_task_middleware_container_name
+      image        = "${data.aws_ecr_repository.backend_middleware.repository_url}:${local.ecr_backend_middleware_repository_newest_tags[0]}"
+      portMappings = [{ containerPort : 80 }]
       volumesFrom = [{
-        sourceContainer: local.backend_task_app_container_name
-        readOnly: null
+        sourceContainer : local.backend_task_app_container_name
+        readOnly : null
       }]
       dependsOn = [{
-          containerName: local.backend_task_app_container_name
-          condition: "START"
+        containerName : local.backend_task_app_container_name
+        condition : "START"
       }]
       logConfiguration = {
         logDriver = "awslogs"
-        options   = {
+        options = {
           awslogs-region : "ap-northeast-1"
           awslogs-group : aws_cloudwatch_log_group.backend_middleware.name
           awslogs-stream-prefix : "ecs"
@@ -204,37 +204,37 @@ resource "aws_ecs_task_definition" "backend" {
       }
     },
     {
-      name             = local.backend_task_app_container_name
-      image            = "${data.aws_ecr_repository.backend_app.repository_url}:${local.ecr_backend_app_repository_newest_tags[0]}"
+      name  = local.backend_task_app_container_name
+      image = "${data.aws_ecr_repository.backend_app.repository_url}:${local.ecr_backend_app_repository_newest_tags[0]}"
       secrets = [
         {
-          name: "APP_ENV"
-          valueFrom: data.aws_ssm_parameter.app_env.arn
+          name : "APP_ENV"
+          valueFrom : data.aws_ssm_parameter.app_env.arn
         },
         {
-          name: "APP_KEY"
-          valueFrom: data.aws_ssm_parameter.app_key.arn
+          name : "APP_KEY"
+          valueFrom : data.aws_ssm_parameter.app_key.arn
         },
         {
-          name: "DB_DATABASE"
-          valueFrom: data.aws_ssm_parameter.database_name.arn
+          name : "DB_DATABASE"
+          valueFrom : data.aws_ssm_parameter.database_name.arn
         },
         {
-          name: "DB_USERNAME"
-          valueFrom: data.aws_ssm_parameter.database_user.arn
+          name : "DB_USERNAME"
+          valueFrom : data.aws_ssm_parameter.database_user.arn
         },
         {
-          name: "DB_PASSWORD"
-          valueFrom: data.aws_ssm_parameter.database_password.arn
+          name : "DB_PASSWORD"
+          valueFrom : data.aws_ssm_parameter.database_password.arn
         },
         {
-          name: "DB_HOST"
-          valueFrom: aws_ssm_parameter.database_url.arn
+          name : "DB_HOST"
+          valueFrom : aws_ssm_parameter.database_url.arn
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
-        options   = {
+        options = {
           awslogs-region : "ap-northeast-1"
           awslogs-group : aws_cloudwatch_log_group.backend_app.name
           awslogs-stream-prefix : "ecs"
@@ -257,7 +257,7 @@ resource "aws_ecs_service" "frontend" {
   deployment_maximum_percent         = 200
   propagate_tags                     = "SERVICE"
   enable_execute_command             = true
-  launch_type                         = "FARGATE"
+  launch_type                        = "FARGATE"
   health_check_grace_period_seconds  = 60
   deployment_circuit_breaker {
     enable   = true
@@ -309,7 +309,7 @@ resource "aws_ecs_service" "backend" {
   deployment_maximum_percent         = 200
   propagate_tags                     = "SERVICE"
   enable_execute_command             = true
-  launch_type                         = "FARGATE"
+  launch_type                        = "FARGATE"
   health_check_grace_period_seconds  = 60
   deployment_circuit_breaker {
     enable   = true
@@ -355,11 +355,11 @@ resource "aws_lb_listener_rule" "maintenance" {
   listener_arn = aws_lb_listener.https.arn
   priority     = 100
   action {
-    type             = "fixed-response"
+    type = "fixed-response"
     fixed_response {
       content_type = "text/html"
       message_body = local.maintenance_body
-      status_code = "503"
+      status_code  = "503"
     }
   }
   condition {
