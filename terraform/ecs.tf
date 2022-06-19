@@ -19,11 +19,11 @@ resource "aws_ecs_cluster" "this" {
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs_task_execution_role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Effect    = "Allow",
-        Principal = { Service = "ecs-tasks.amazonaws.com" },
+        Effect    = "Allow"
+        Principal = { Service = "ecs-tasks.amazonaws.com" }
         Action    = "sts:AssumeRole"
       }
     ]
@@ -33,19 +33,18 @@ resource "aws_iam_role" "ecs_task_execution_role" {
     "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
   ]
 }
-
 resource "aws_iam_role_policy" "kms_decrypt_policy" {
   name = "${local.app_name}_ecs_task_execution_role_policy_kms"
   role = aws_iam_role.ecs_task_execution_role.id
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow",
-        Action = [
+        "Effect" : "Allow",
+        "Action" : [
           "kms:Decrypt"
         ],
-        Resource = [
+        "Resource" : [
           data.aws_ssm_parameter.database_password.arn
         ]
       }
@@ -334,7 +333,7 @@ resource "aws_lb_target_group" "backend" {
   port                 = 80
   protocol             = "HTTP"
   deregistration_delay = 60
-  health_check { path = "/api/healthcheck" }
+  health_check { path = "/api/health_check" }
 }
 
 resource "aws_lb_listener_rule" "backend" {
