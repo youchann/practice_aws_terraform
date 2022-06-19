@@ -12,6 +12,7 @@ locals {
 	host_domain = "youchannpracticeterraformapp.tk"
 	app_domain_name = "app.youchannpracticeterraformapp.tk"
   api_domain_name = "api.youchannpracticeterraformapp.tk"
+  ssm_parameter_store_base = "/${local.app_name}/prod"
 }
 
 provider "aws" {
