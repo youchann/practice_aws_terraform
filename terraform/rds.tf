@@ -17,8 +17,8 @@ data "aws_ssm_parameter" "database_password" {
 # RDS SSM
 ####################################################
 resource "aws_security_group" "database_sg" {
-  name        = "${local.app_name}-database-sg" 
-  description = "${local.app_name}-database" 
+  name        = "${local.app_name}-database-sg"
+  description = "${local.app_name}-database"
 
   vpc_id = aws_vpc.this.id
 
@@ -28,7 +28,6 @@ resource "aws_security_group" "database_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
   tags = {
     Name = "${local.app_name}-database-sg"
   }
@@ -36,30 +35,31 @@ resource "aws_security_group" "database_sg" {
 
 resource "aws_security_group_rule" "database_sg_rule" {
   security_group_id = aws_security_group.database_sg.id
-  
+
   type = "ingress"
 
-  from_port = 3306
-  to_port   = 3306
-  protocol  = "tcp"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
   source_security_group_id = aws_security_group.app.id
 }
 
 resource "aws_db_subnet_group" "database_sg_group" {
   name        = "${local.app_name}-database-subnet-group"
   description = "${local.app_name}-database-subnet-group"
-  subnet_ids  = [
+  subnet_ids = [
     aws_subnet.private_1a.id,
     aws_subnet.private_1c.id,
     aws_subnet.private_1d.id,
   ]
 }
 
+
 ####################################################
 # RDS Cluster
 ####################################################
 resource "aws_rds_cluster" "this" {
-  cluster_identifier =  "${local.app_name}-database-cluster"
+  cluster_identifier = "${local.app_name}-database-cluster"
 
   db_subnet_group_name   = aws_db_subnet_group.database_sg_group.name
   vpc_security_group_ids = [aws_security_group.database_sg.id]
@@ -84,10 +84,10 @@ resource "aws_rds_cluster_instance" "this" {
   identifier         = "${local.app_name}-database-cluster-instance"
   cluster_identifier = aws_rds_cluster.this.id
 
-  engine = aws_rds_cluster.this.engine
+  engine         = aws_rds_cluster.this.engine
   engine_version = aws_rds_cluster.this.engine_version
 
-  instance_class = "db.t4g.medium"
+  instance_class       = "db.t4g.medium"
   db_subnet_group_name = aws_rds_cluster.this.db_subnet_group_name
 }
 
