@@ -1,4 +1,4 @@
-FROM php:8.1.4-fpm-alpine3.14
+FROM --platform=linux/amd64 php:8.1.4-fpm-alpine3.14
 
 # add user
 RUN addgroup -S nginx && adduser -S nginx -G nginx
