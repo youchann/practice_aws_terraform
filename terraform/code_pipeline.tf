@@ -5,10 +5,10 @@ resource "aws_codestarconnections_connection" "github" {
   name          = "${local.app_name}-github-connection"
   provider_type = "GitHub"
 }
-
 ####################################################
 # CodePipeLine - IAM Role
 ####################################################
+
 resource "aws_iam_role" "codepipeline_role" {
   name               = "${local.app_name}-codepipeline-role"
   assume_role_policy = <<EOF
@@ -54,7 +54,6 @@ locals {
   IAM_POLICY_ARN_AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   IMA_POLICY_ARN_AmazonSSMReadOnlyAccess            = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
-
 resource "aws_iam_role" "build_role" {
   name               = "${local.app_name}-codebuild-role"
   assume_role_policy = <<EOF
@@ -213,7 +212,6 @@ resource "aws_iam_role_policy_attachment" "build_ssm_read" {
   policy_arn = local.IMA_POLICY_ARN_AmazonSSMReadOnlyAccess
   role       = aws_iam_role.build_role.name
 }
-
 resource "aws_codebuild_project" "build" {
   name         = "${local.app_name}-buildproject"
   service_role = aws_iam_role.build_role.arn
@@ -272,10 +270,10 @@ resource "aws_codebuild_project" "build" {
     type = "CODEPIPELINE"
   }
 }
-
 ####################################################
 # CodePipeLine - Pipeline
 ####################################################
+
 resource "aws_codepipeline" "pipeline" {
   name     = "${local.app_name}-pipeline-deploy"
   role_arn = aws_iam_role.codepipeline_role.arn
@@ -292,6 +290,7 @@ resource "aws_codepipeline" "pipeline" {
       provider         = "CodeStarSourceConnection"
       version          = 1
       output_artifacts = ["source_output"]
+
       configuration = {
         ConnectionArn    = aws_codestarconnections_connection.github.arn
         FullRepositoryId = "youchann/practice_aws_terraform"
