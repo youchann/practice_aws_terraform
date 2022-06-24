@@ -169,6 +169,7 @@ resource "aws_iam_policy" "build_ecr_put" {
             "Sid": "VisualEditor0",
             "Effect": "Allow",
             "Action": [
+                "ecr:GetDownloadUrlForLayer"
                 "ecr:BatchGetImage",
                 "ecr:CompleteLayerUpload",
                 "ecr:UploadLayerPart",
