@@ -1,0 +1,49 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+#      - Dockerデーモンを起動するために必要な冒頭2行
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - aws --version
+      - aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 412335340103.dkr.ecr.ap-northeast-1.amazonaws.com
+      - cp app/laravel/.env.example laravel/.env
+      - . laravel/deploy/set_env_variables.sh
+      - bash app/laravel/deploy/set_env_variables.sh
+#      - Codebuildが標準で使うことができる環境変数
+      - version=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - NGINX_ECR_REPO_URL=412335340103.dkr.ecr.ap-northeast-1.amazonaws.com/tfpractice-nginx
+      - PHP_ECR_REPO_URL=412335340103.dkr.ecr.ap-northeast-1.amazonaws.com/tfpractice-phpfpm
+      - NEXT_ECR_REPO_URL=412335340103.dkr.ecr.ap-northeast-1.amazonaws.com/tfpractice-next
+  build:
+    commands:
+      - echo Build started on `date`
+      - docker build -t tfpractice-nginx:"${version}" -f ./app/laravel/infra/web/Dockerfile ./laravel
+      - docker tag tfpractice-nginx:"${version}" ${NGINX_ECR_REPO_URL}:"${version}"
+      - CURRENT_NGINX_ECR_REPO_URL="${NGINX_ECR_REPO_URL}":"${version}"
+      - docker build -t tfpractice-phpfpm:"${version}" -f ./app/laravel/infra/php/Dockerfile ./laravel
+      - docker tag tfpractice-phpfpm:"${version}" "${PHP_ECR_REPO_URL}":"${version}"
+      - CURRENT_PHP_ECR_REPO_URL="${PHP_ECR_REPO_URL}":"${version}"
+      - docker build -t tfpractice-next:"${version}" -f ./app/next/Dockerfile.prod ./next
+      - docker tag tfpractice-next:"${version}" "${NEXT_ECR_REPO_URL}":"${version}"
+      - CURRENT_NEXT_ECR_REPO_URL="${NEXT_ECR_REPO_URL}":"${version}"
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $CURRENT_NGINX_ECR_REPO_URL
+      - docker push $CURRENT_PHP_ECR_REPO_URL
+      - docker push $CURRENT_NEXT_ECR_REPO_URL
+      - printf '[{"name":"tfpractice-app-container-next-frontend","imageUri":"%s"}]' $CURRENT_NEXT_ECR_REPO_URL > frontend_imagedefinitions.json
+      - printf '[{"name":"tfpractice-app-container-nginx-backend","imageUri":"%s"}, {"name":"tfpractice-app-container-phpfpm-backend","imageUri":"%s"}]' $CURRENT_NGINX_ECR_REPO_URL $CURRENT_PHP_ECR_REPO_URL > backend_imagedefinitions.json
+      - cd app/laravel
+      - composer install
+      - composer dump-autoload
+      - php artisan migrate --force
+      - bash deploy/seeder/specific_seeding.sh
+      - cd ..
+artifacts:
+  files:
+    - frontend_imagedefinitions.json
+    - backend_imagedefinitions.json
