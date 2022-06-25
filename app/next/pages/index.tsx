@@ -2,7 +2,7 @@ import type {NextPage} from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import {apiClient, apiServer} from "../utils/apiClient";
+import {apiServer, apiClient} from "../utils/apiClient";
 import {TestItem, TestItemResponse} from "../types/TestItem";
 
 interface Props {
@@ -15,20 +15,10 @@ export async function getServerSideProps() {
     updated_at: '',
     created_at: ''
   }
-  await apiServer.get<TestItemResponse>('test')
-      .then((res) => {
-        data = {
-          id: res.data.id,
-          text: res.data.text,
-          updated_at: res.data.updated_at,
-          created_at: res.data.created_at
-        }
-      }).catch(err => {
-        console.error(err)
-      })
+  const res = await apiServer.get<TestItemResponse>('test');
   return {
     props: {
-      data
+      data: res.data
     }
   }
 }
@@ -40,7 +30,7 @@ export async function postData() : Promise<TestItem | null> {
     updated_at: '',
     created_at: ''
   }
-  return apiServer.post<TestItemResponse>('test', {text: `sample text_${Math.ceil(Math.random() * 100)}`})
+  return apiClient.post<TestItemResponse>('test', {text: `sample text_${Math.ceil(Math.random() * 100)}`})
       .then(res => {
         const item: TestItemResponse = res.data
         data = {...item}
