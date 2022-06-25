@@ -8,8 +8,7 @@ phases:
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - aws --version
       - aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 412335340103.dkr.ecr.ap-northeast-1.amazonaws.com
-      - cp app/laravel/.env.example laravel/.env
-      - . laravel/deploy/set_env_variables.sh
+      - cp app/laravel/.env.example app/laravel/.env
       - bash app/laravel/deploy/set_env_variables.sh
 #      - Codebuildが標準で使うことができる環境変数
       - version=$CODEBUILD_RESOLVED_SOURCE_VERSION

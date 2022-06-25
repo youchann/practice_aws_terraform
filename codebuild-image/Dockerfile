@@ -1,4 +1,4 @@
-FROM docker:20.10.17-dind-alpine3.16
+FROM --platform=linux/amd64 docker:20.10.17-dind-alpine3.16
 
 RUN apk --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/edge/main add \
     icu-libs \
