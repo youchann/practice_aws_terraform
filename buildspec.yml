@@ -18,13 +18,13 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - docker build -t tfpractice-nginx:"${version}" -f ./app/laravel/infra/web/Dockerfile ./laravel
+      - docker build -t tfpractice-nginx:"${version}" -f ./app/laravel/infra/web/Dockerfile ./app/laravel
       - docker tag tfpractice-nginx:"${version}" ${NGINX_ECR_REPO_URL}:"${version}"
       - CURRENT_NGINX_ECR_REPO_URL="${NGINX_ECR_REPO_URL}":"${version}"
-      - docker build -t tfpractice-phpfpm:"${version}" -f ./app/laravel/infra/php/Dockerfile ./laravel
+      - docker build -t tfpractice-phpfpm:"${version}" -f ./app/laravel/infra/php/Dockerfile ./app/laravel
       - docker tag tfpractice-phpfpm:"${version}" "${PHP_ECR_REPO_URL}":"${version}"
       - CURRENT_PHP_ECR_REPO_URL="${PHP_ECR_REPO_URL}":"${version}"
-      - docker build -t tfpractice-next:"${version}" -f ./app/next/Dockerfile.prod ./next
+      - docker build -t tfpractice-next:"${version}" -f ./app/next/Dockerfile.prod ./app/next
       - docker tag tfpractice-next:"${version}" "${NEXT_ECR_REPO_URL}":"${version}"
       - CURRENT_NEXT_ECR_REPO_URL="${NEXT_ECR_REPO_URL}":"${version}"
   post_build:
