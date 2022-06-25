@@ -40,7 +40,7 @@ export async function postData() : Promise<TestItem | null> {
     updated_at: '',
     created_at: ''
   }
-  return apiClient.post<TestItemResponse>('test', {text: `sample text_${Math.ceil(Math.random() * 100)}`})
+  return apiServer.post<TestItemResponse>('test', {text: `sample text_${Math.ceil(Math.random() * 100)}`})
       .then(res => {
         const item: TestItemResponse = res.data
         data = {...item}

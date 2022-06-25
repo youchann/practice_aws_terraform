@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('test', static function () {
-    return array('sample test');
+    return \App\Models\Sample::all()->first();
 });
 
 Route::post('test', static function (Request $request) {
