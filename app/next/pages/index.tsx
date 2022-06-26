@@ -9,12 +9,6 @@ interface Props {
   data: TestItem
 }
 export async function getServerSideProps() {
-  let data: TestItem = {
-    id: 0,
-    text: '',
-    updated_at: '',
-    created_at: ''
-  }
   const res = await apiServer.get<TestItemResponse>('test');
   return {
     props: {
@@ -34,7 +28,6 @@ export async function postData() : Promise<TestItem | null> {
       .then(res => {
         const item: TestItemResponse = res.data
         data = {...item}
-        console.log(data)
         return data
       }).catch(e => {
         console.error(e)
